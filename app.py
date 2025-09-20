@@ -2,7 +2,6 @@ import streamlit as st
 from gtts import gTTS
 from groq import Groq
 from langchain_groq import ChatGroq
-import base64
 import os
 
 from dotenv import load_dotenv
@@ -23,17 +22,18 @@ system_message = """
 ...
 """
 
-st.title("ਪੰਜਾਬੀ ਮੈਡੀਕਲ ਚੈਟਬਾਟ (Web Speech API + TTS)")
+st.set_page_config(page_title="MEDICAL CHATBOT", page_icon="🩺", layout="centered")
+st.title("🩺 MEDICAL CHATBOT")
 
 if "history" not in st.session_state:
     st.session_state.history = []
 
 # 1️⃣ JS + HTML for browser speech recognition
-st.write("🎤 Click the button and speak:")
+st.markdown("### 🎤 CLICK AND SPEAK")
 
 components_code = """
-<button onclick="startDictation()">Record</button>
-<p id="transcript"></p>
+<button style="padding: 10px; font-size: 16px; border-radius: 5px; background-color:#4CAF50; color:white;" onclick="startDictation()">Record</button>
+<p id="transcript" style="margin-top:10px; font-weight:bold;"></p>
 <script>
 function startDictation() {
     if (window.hasOwnProperty('webkitSpeechRecognition')) {
@@ -61,7 +61,7 @@ function startDictation() {
 st.components.v1.html(components_code, height=150)
 
 # 2️⃣ User input text (filled automatically by JS)
-user_prompt = st.text_input("Recognized text will appear here:")
+user_prompt = st.text_input("Recognized text will appear here:", key="stTextInput")
 
 # 3️⃣ Generate LLM response
 def get_response(user_prompt):
@@ -86,23 +86,30 @@ def text_to_speech(text, filename="Recording.mp3"):
     tts.save(filename)
     return filename
 
-# 5️⃣ When user presses Enter
-if st.button("Send"):
+# 5️⃣ When user presses Send
+if st.button("📤 Send"):
     if user_prompt:
         response_text = get_response(user_prompt)
         st.session_state.history.append({"user": user_prompt, "bot": response_text})
 
-# 6️⃣ Display chat history
-for idx, chat in enumerate(st.session_state.history):
-    st.markdown(f"**ਤੁਸੀਂ:** {chat['user']}")
-    st.markdown(f"**ਬੋਟ:** {chat['bot']}")
+# 6️⃣ Display chat history with bubbles
+st.markdown("### 💬 CHAT HISTORY")
 
+for idx, chat in enumerate(st.session_state.history):
+    st.markdown(
+        f"<div style='background-color:#DCF8C6; padding:10px; border-radius:10px; margin-bottom:5px;'>"
+        f"<b>YOU:</b> {chat['user']}</div>", 
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"<div style='background-color:#F1F0F0; padding:10px; border-radius:10px; margin-bottom:10px;'>"
+        f"<b>BOT:</b> {chat['bot']}</div>", 
+        unsafe_allow_html=True
+    )
+
+    # Generate TTS if not exists
     audio_file = f"response_{idx}.mp3"
     if not os.path.exists(audio_file):
         text_to_speech(chat["bot"], filename=audio_file)
     audio_bytes = open(audio_file, "rb").read()
     st.audio(audio_bytes, format="audio/mp3")
-    st.write("---")
-
-
-
