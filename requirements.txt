@@ -1,0 +1,5 @@
+streamlit
+gtts
+groq
+langchain-groq
+googletrans==4.0.0-rc1
