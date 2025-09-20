@@ -5,3 +5,4 @@ groq
 langchain-groq==0.3.8
 googletrans
 protobuf==3.20.3
+python-dotenv
