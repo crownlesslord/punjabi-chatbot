@@ -7,7 +7,7 @@ import os
 # -------------------------
 # Groq API Key
 # -------------------------
-groq_api_key = "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"
+groq_api_key = "GROQ_API_KEY"
 
 # Initialize Groq client
 try:
